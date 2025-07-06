@@ -1,3 +1,5 @@
+def img
+def dockerImage
 pipeline {
     agent any
     tools{
@@ -9,10 +11,21 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ayush-kaushik-byte/devops-test.git']])
             }
         }
-        stage('Build docker image'){
-            steps{
-                script{
-                    sh 'docker build -t devops-test .'
+        stage('Build Image') {
+            steps {
+                script {
+                    img = "ayushk39/currency_converter"
+                    println ("${img}")
+                    dockerImage = docker.build("${img}")
+                }
+            }
+        }
+        stage('Push To DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry( 'https://registry.hub.docker.com ', 'dockerHubCredentials' ) {
+                        dockerImage.push()
+                    }
                 }
             }
         }
